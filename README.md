@@ -1,6 +1,7 @@
 # HandwriterDiscordBot
  
 sherlockdoyle - Handwriter https://github.com/sherlockdoyle/Handwriter
+
 Ports sherlockdoyle - Handwriter script to a discord bot with some added parameters.
 
 Goes from discord post -> pdf -> .png -> handwriter.py -> output-cropped.png
