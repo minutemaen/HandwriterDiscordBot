@@ -58,7 +58,7 @@ class LetterBot(commands.Cog):
 
     @commands.command("letter")
     async def make_letter(self, ctx: commands.Context, *, letter: str):
-        df = await ctx.send("Generating...")
+        df = await ctx.send("Sending...")
         # PDF CREATION
         with open("config.json", "r") as e:
             config = json.load(e)
@@ -82,56 +82,82 @@ class LetterBot(commands.Cog):
 
             @discord.ui.button(label="Redo", style=discord.ButtonStyle.blurple)
             async def redo(self, interaction: discord.Interaction, button: discord.ui.Button):
-                await interaction.response.send_message("Loading...", ephemeral=True)
-                pdf = PDF(orientation='P', unit='mm', format='A4')
+                await interaction.response.send_message("Generating...", ephemeral=True)
+                # pdf = PDF(orientation='P', unit='mm', format='A4')
+                #
+                # pdf.add_page()
+                # pdf.set_font(config["FONT"], '', config["FONT_SIZE"])
+                # pdf.set_text_color(0, 0, 0)
+                # pdf.multi_cell(config["HORIZONTAL_SPACING"], config["VERTICAL_SPACING"], letter + "\n", 0, "L", False)
+                #
+                # pdf.output(f"tmp/{ctx.author.id}.pdf", "F")
+                # ts = int(ctx.message.created_at.timestamp())
+                #
+                # if not os.path.exists(f"out/{ctx.author.id}/"):
+                #     os.mkdir(f"out/{ctx.author.id}/")
+                # if not os.path.exists(f"out/{ctx.author.id}/{ts}/"):
+                #     os.mkdir(f"out/{ctx.author.id}/{ts}/")
+                # # PDF2IMG
+                # if POPPLER_BIN is None:
+                #     images = pdf2image.convert_from_path(f"tmp/{ctx.author.id}.pdf", )
+                # else:
+                #     print(repr(POPPLER_BIN))
+                #     images = pdf2image.convert_from_path(f"tmp/{ctx.author.id}.pdf",
+                #                                          poppler_path=r"{}".format(POPPLER_BIN))
+                # await asyncio.sleep(1)
+                # if not os.path.exists(f"tmp/{ctx.author.id}/"):
+                #     os.mkdir(f"tmp/{ctx.author.id}/")
+                # for i, c in enumerate(images):
+                #     await asyncio.sleep(1)
+                #     images[i].save(f"tmp/{ctx.author.id}/{ctx.author.id}-{i}.png")
+                # for i, c in enumerate(images):
+                #     await asyncio.sleep(1)
+                #     images[i].save(f"out/{ctx.author.id}/{ts}/{i}.png")
 
-                pdf.add_page()
-                pdf.set_font(config["FONT"], '', config["FONT_SIZE"])
-                pdf.set_text_color(0, 0, 0)
-                pdf.multi_cell(config["HORIZONTAL_SPACING"], config["VERTICAL_SPACING"], letter + "\n", 0, "L", False)
+                # handwriting.apply([f"tmp/{ctx.author.id}/"], ctx.author.id, ts)
 
-                pdf.output(f"tmp/{ctx.author.id}.pdf", "F")
-
-                if POPPLER_BIN is None:
-                    images = pdf2image.convert_from_path(f"tmp/{ctx.author.id}.pdf", )
-                else:
-                    images = pdf2image.convert_from_path(f"tmp/{ctx.author.id}.pdf", poppler_path=POPPLER_BIN)
-
-                await asyncio.sleep(1)
-                if not os.path.exists(f"tmp/{ctx.author.id}/"):
-                    os.mkdir(f"tmp/{ctx.author.id}/")
-                for i, c in enumerate(images):
-                    await asyncio.sleep(1)
-                    images[i].save(f"tmp/{ctx.author.id}/{ctx.author.id}-{i}.png")
-                ts = int(interaction.created_at.timestamp())
-                handwriting.apply([f"tmp/{ctx.author.id}/"], ctx.author.id, ts)
+                awa = 0
 
                 # APPLY CROPPING
-                pdf = PdfWriter()
-                for i, dir in enumerate(os.listdir(f"out/{ctx.author.id}/{ts}/")):
-                    if ".png" in dir:
-                        img = cv2.imread(fr"out/{ctx.author.id}/{ts}/{dir}")
-                        # Read in the image and convert to grayscale
-                        # img = img[:-20, :-20]  # Perform pre-cropping
-                        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                        gray = 255 * (gray < 50).astype(np.uint8)  # To invert the text to white
-                        gray = cv2.morphologyEx(gray, cv2.MORPH_OPEN, np.ones(
-                            (2, 2), dtype=np.uint8))  # Perform noise filtering
-                        coords = cv2.findNonZero(gray)  # Find all non-zero points (text)
-                        x, y, w, h = cv2.boundingRect(coords)  # Find minimum spanning bounding box
-                        # Crop the image - note we do this on the original image
-                        rect = img[0:(y + h) * 3, 0:img.shape[1]]
-                        # cv2.imwrite(f"out/{ctx.author.id}/{ts}/{dir.replace('.png', '-cropped.png')}", rect)
-                        print(x, y, w, h)
-                        awa = h
-                        tmp_pdf = PdfReader(f"tmp/{ctx.author.id}.pdf")
-                        page = tmp_pdf.pages[i]
-                        print(h)
-                        print(page.mediabox.lower_right[1])
-                        page.mediabox.lower_right = (page.mediabox.lower_right[0], ((h / 2) + y))
-                        pdf.add_page(page)
-                with open(f"tmp/{ctx.author.id}.pdf", "wb") as o:
-                    pdf.write(o)
+                # if config["CROP"]:
+                #     print("APPLYING CROPPING")
+                #     pdf = PdfWriter()
+                #     for i, dir in enumerate(os.listdir(f"out/{ctx.author.id}/{ts}/")):
+                #         if ".png" in dir:
+                #             img = cv2.imread(fr"out/{ctx.author.id}/{ts}/{dir}")
+                #             # Read in the image and convert to grayscale
+                #             # img = img[:-20, :-20]  # Perform pre-cropping
+                #             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                #             gray = 255 * (gray < 50).astype(np.uint8)  # To invert the text to white
+                #             gray = cv2.morphologyEx(gray, cv2.MORPH_OPEN, np.ones(
+                #                 (2, 2), dtype=np.uint8))  # Perform noise filtering
+                #             coords = cv2.findNonZero(gray)  # Find all non-zero points (text)
+                #             x, y, w, h = cv2.boundingRect(coords)  # Find minimum spanning bounding box
+                #             # Crop the image - note we do this on the original image
+                #             rect = img[0:(y + h) * 3, 0:img.shape[1]]
+                #             # cv2.imwrite(f"out/{ctx.author.id}/{ts}/{dir.replace('.png', '-cropped.png')}", rect)
+                #             print(x, y, w, h)
+                #             awa = h
+                #             tmp_pdf = PdfReader(f"tmp/{ctx.author.id}.pdf")
+                #             page = tmp_pdf.pages[i]
+                #             print(h)
+                #
+                #             print(page.mediabox.lower_right)
+                #             print(page.mediabox.upper_right)
+                #             print((h - (h - page.mediabox.upper_right[1])))
+                #             y_cord = page.mediabox.upper_right[1] - (h / 2)
+                #             if 3000 > h > 1200:
+                #                 y_cord = (h / 12)
+                #                 print("sdasd", y_cord, "\n", (h / 12), "\n\n")
+                #                 if y_cord > 420 or y_cord < 200:
+                #                     y_cord = 0
+                #             if 200 > h > 30:
+                #                 y_cord = page.mediabox.upper_right[1] - (h * 2)
+                #             print("ycord =", y_cord)
+                #             page.mediabox.lower_right = (page.mediabox.lower_right[0], y_cord)
+                #             pdf.add_page(page)
+                #     with open(f"tmp/{ctx.author.id}.pdf", "wb") as o:
+                #         pdf.write(o)
 
                 if POPPLER_BIN is None:
                     images = pdf2image.convert_from_path(f"tmp/{ctx.author.id}.pdf", )
@@ -158,10 +184,10 @@ class LetterBot(commands.Cog):
                 message = f"Letter from {ctx.author.display_name}\n\n{r_msg}"
                 view = MessageView(f"out/{ctx.author.id}/{ts}/", letter)
                 await interaction.message.edit(content=message[:1999], attachments=files, view=view)
-                await interaction.edit_original_response(content="Generated!")
+                await interaction.edit_original_response(content="Sent!")
                 shutil.rmtree(f"tmp/{ctx.author.id}")
 
-            # @discord.ui.button(label="View Full Image")
+        # @discord.ui.button(label="View Full Image")
             # async def view_full(self, interaction: discord.Interaction, button: discord.ui.Button):
             #     await interaction.response.send_message("Loading...", ephemeral=True)
             #     files = []
@@ -335,7 +361,7 @@ class LetterBot(commands.Cog):
     async def available_fonts(self, ctx: commands.Context):
         fonts = [path for path in os.listdir("Fonts") if not path.endswith(".pkl")]
         embed = discord.Embed(title="Available Fonts", color=0xD7D7D7)
-        embed.description = "Use this font names to set a font using the !settings command\n```!settings FONT [FONT-NAME]```\n" + "\n".join(
+        embed.description = "Use this font name to set a font using the !settings command\n```!settings FONT [FONT-NAME]```\n" + "\n".join(
             [f'`{font.replace(".ttf", "")}`:\n```!settings FONT {font.replace(".ttf", "")}```' for font in fonts])
         await ctx.send(embed=embed)
 
