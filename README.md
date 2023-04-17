@@ -70,3 +70,11 @@ Put any font you want in the Fonts folder and it can be used if set in the setti
 
 
 
+
+
+## Todo
+
+Integrate mistakes macro
+Add button to change font instead of manually doing it
+
+Optimize code so heartbeat doesnt die.
